@@ -8,7 +8,7 @@ const login = async (req, res) => {
     const managerNameLower = manager_name.toLowerCase();
 
 
-    const sql = "SELECT * FROM manageradmin WHERE LOWER(source) = ? AND password = ?";
+    const sql = "SELECT * FROM managers WHERE LOWER(source) = ? AND password = ?";
     const result = await query(sql, [managerNameLower, password]);
 
     if (result.length === 0) {
@@ -24,15 +24,15 @@ const login = async (req, res) => {
     //   { expiresIn: '1h' } // Token expires in 1 hour
     // );
 
-    const agentSql = "SELECT * FROM rs_agentmobile";
-    const agents = await query(agentSql, [manager.manager_id]);
+    // const agentSql = "SELECT * FROM rs_agentmobile";
+    // const agents = await query(agentSql, [manager.manager_id]);
 
 
     res.json({
       manager_id: manager.manager_id,
       manager_name: manager.source,
       // accessToken: accessToken,
-      agents: agents,
+      // agents: agents,
     });
 
   } catch (err) {

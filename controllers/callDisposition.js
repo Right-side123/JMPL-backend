@@ -17,26 +17,29 @@ const getConnectedCall = async (req, res) => {
     try {
         const querySql = `
             SELECT 
-                call_datetime,
-                calltype,
-                custphone,
-                agent,
-                agent_dial_start,
-                agent_answered_at,
-                agent_disconnected_at,
-                agent_duration,
-                customer_duration,
-                customer_dial_start,
-                customer_answered_at,
-                customer_disconnected_at,
-                api_response,
-                recording_file,
-                agent_disposition,
-                customer_disposition
+                c.call_datetime,
+                c.calltype,
+                c.custphone,
+                a.agentname,
+                c.agent,
+                c.agent_dial_start,
+                c.agent_answered_at,
+                c.agent_disconnected_at,
+                c.agent_duration,
+                c.customer_duration,
+                c.customer_dial_start,
+                c.customer_answered_at,
+                c.customer_disconnected_at,
+                c.api_response,
+                c.recording_file,
+                c.agent_disposition,
+                c.customer_disposition
 
-            FROM customcdr
-            WHERE call_datetime BETWEEN ? AND ?
-              AND agent_disposition = 'ANSWERED';
+            FROM customcdr c
+
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile
+            WHERE c.call_datetime BETWEEN ? AND ?
+              AND c.agent_disposition = 'ANSWERED';
         `;
 
         const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
@@ -66,26 +69,29 @@ const getNotconnectedCall = async (req, res) => {
     try {
         const querySql = `
             SELECT 
-                call_datetime,
-                calltype,
-                custphone,
-                agent,
-                agent_dial_start,
-                agent_answered_at,
-                agent_disconnected_at,
-                agent_duration,
-                customer_duration,
-                customer_dial_start,
-                customer_answered_at,
-                customer_disconnected_at,
-                api_response,
-                recording_file,
-                agent_disposition,
-                customer_disposition
+                c.call_datetime,
+                c.calltype,
+                c.custphone,
+                a.agentname,
+                c.agent,
+                c.agent_dial_start,
+                c.agent_answered_at,
+                c.agent_disconnected_at,
+                c.agent_duration,
+                c.customer_duration,
+                c.customer_dial_start,
+                c.customer_answered_at,
+                c.customer_disconnected_at,
+                c.api_response,
+                c.recording_file,
+                c.agent_disposition,
+                c.customer_disposition
 
-            FROM customcdr
-            WHERE call_datetime BETWEEN ? AND ?
-              AND agent_disposition = 'NO ANSWER';
+            FROM customcdr c
+
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile
+            WHERE c.call_datetime BETWEEN ? AND ?
+              AND c.agent_disposition = 'NO ANSWER';
         `;
 
         const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
@@ -115,28 +121,31 @@ const getMissedOutboundCall = async (req, res) => {
     try {
         const querySql = `
             SELECT 
-                call_datetime,
-                calltype,
-                custphone,
-                agent,
-                agent_dial_start,
-                agent_answered_at,
-                agent_disconnected_at,
-                agent_duration,
-                customer_duration,
-                customer_dial_start,
-                customer_answered_at,
-                customer_disconnected_at,
-                api_response,
-                recording_file,
-                agent_disposition,
-                customer_disposition
+                c.call_datetime,
+                c.calltype,
+                c.custphone,
+                a.agentname,
+                c.agent,
+                c.agent_dial_start,
+                c.agent_answered_at,
+                c.agent_disconnected_at,
+                c.agent_duration,
+                c.customer_duration,
+                c.customer_dial_start,
+                c.customer_answered_at,
+                c.customer_disconnected_at,
+                c.api_response,
+                c.recording_file,
+                c.agent_disposition,
+                c.customer_disposition
 
-            FROM customcdr
+            FROM customcdr c
+
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile
             
-            WHERE call_datetime BETWEEN ? AND ?
-              AND agent_disposition = 'NO ANSWER'
-              AND calltype = 'Outbound';
+            WHERE c.call_datetime BETWEEN ? AND ?
+              AND c.agent_disposition = 'NO ANSWER'
+              AND c.calltype = 'Outbound';
         `;
 
         const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
@@ -167,27 +176,30 @@ const getMissedCall = async (req, res) => {
     try {
         const querySql = `
             SELECT 
-                call_datetime,
-                calltype,
-                custphone,
-                agent,
-                agent_dial_start,
-                agent_answered_at,
-                agent_disconnected_at,
-                agent_duration,
-                customer_duration,
-                customer_dial_start,
-                customer_answered_at,
-                customer_disconnected_at,
-                api_response,
-                recording_file,
-                agent_disposition,
-                customer_disposition
+                c.call_datetime,
+                c.calltype,
+                c.custphone,
+                a.agentname,
+                c.agent,
+                c.agent_dial_start,
+                c.agent_answered_at,
+                c.agent_disconnected_at,
+                c.agent_duration,
+                c.customer_duration,
+                c.customer_dial_start,
+                c.customer_answered_at,
+                c.customer_disconnected_at,
+                c.api_response,
+                c.recording_file,
+                c.agent_disposition,
+                c.customer_disposition
 
-            FROM customcdr
-            WHERE call_datetime BETWEEN ? AND ?
-              AND calltype = 'Incomming Call'
-              AND agent_disposition = 'NO ANSWER';
+            FROM customcdr c
+
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile
+            WHERE c.call_datetime BETWEEN ? AND ?
+              AND c.calltype = 'Incomming Call'
+              AND c.agent_disposition = 'NO ANSWER';
         `;
 
         const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);

@@ -1,11 +1,11 @@
 const { query } = require("../config/db");
 
 const AgentsController = async (req, res) => {
-
-
   try {
+   
+    const { start_date, end_date } = req.query;
 
-    const agentSql = `
+    let agentSql = `
       SELECT 
         a.agentname,
         a.agentmobile,
@@ -20,9 +20,15 @@ const AgentsController = async (req, res) => {
         SUM(CASE WHEN c.calltype = 'Incomming Call' AND c.agent_disposition = 'NO ANSWER' THEN 1 ELSE 0 END) AS totalAbandoned
       FROM rs_agentmobile a
       LEFT JOIN customcdr c ON a.agentmobile = c.agent
-      GROUP BY a.agentname, a.agentmobile
     `;
 
+    
+    if (start_date && end_date) {
+      agentSql += ` WHERE c.call_datetime BETWEEN '${start_date}' AND '${end_date}'`;
+    }
+
+  
+    agentSql += ` GROUP BY a.agentname, a.agentmobile`;
 
     const agents = await query(agentSql);
 
@@ -38,8 +44,9 @@ const AgentsController = async (req, res) => {
 
       return formattedAgent;
     });
-    res.json({
 
+    
+    res.json({
       agents: formattedAgents,
     });
 

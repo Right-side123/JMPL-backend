@@ -94,7 +94,7 @@ const getOutboundCdrData = async (req, res) => {
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
            
             WHERE c.call_datetime BETWEEN ? AND ?
-              AND c.CallType = 'Outbound';
+              AND c.calltype = 'Outbound';
         `;
 
         const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);

@@ -7,7 +7,8 @@ async function getCustomcdrLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile  
         `);
 
         const formattedResults = results.map(item => {
@@ -34,8 +35,9 @@ async function getInboundLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr
-            WHERE calltype = 'Incomming Call';
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile  
+            WHERE c.calltype = 'Incomming Call';
         `);
 
         const formattedResults = results.map(item => {
@@ -62,8 +64,9 @@ async function getOutboundLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr
-            WHERE calltype = 'Outbound';
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile  
+            WHERE c.calltype = 'Outbound';
         `);
 
         const formattedResults = results.map(item => {
@@ -90,8 +93,10 @@ async function getconnectedLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr           
-            Where agent_disposition = 'ANSWERED';
+            FROM customcdr c 
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile         
+            Where c.agent_disposition = 'ANSWERED'
+            AND c.customer_disposition = 'ANSWERED';
         `);
 
         const formattedResults = results.map(item => {
@@ -118,8 +123,10 @@ async function getnotconnectedLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr           
-            Where agent_disposition = 'NO ANSWER';
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile           
+            Where c.agent_disposition = 'ANSWERED'
+            AND c.customer_disposition = 'NO ANSWER';
         `);
 
         const formattedResults = results.map(item => {
@@ -147,9 +154,14 @@ async function getMissedoutboundLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr
-            WHERE calltype = 'Outbound'
-            AND agent_disposition = 'NO ANSWER';
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile  
+            WHERE c.calltype = 'Outbound'
+             AND (
+    (c.agent_disposition = 'ANSWERED' AND c.customer_disposition = 'NO ANSWER')
+    OR 
+   (c.agent_disposition = 'NO ANSWER' AND c.customer_disposition IS NULL)
+);
         `, [manager_id]);
 
         const formattedResults = results.map(item => {
@@ -177,10 +189,10 @@ async function getMissedLength(req, res) {
 
         const results = await query(`
             SELECT COUNT(*) AS total_count
-            FROM customcdr
-
-            WHERE calltype = 'Incomming Call'
-              AND agent_disposition = 'NO ANSWER';
+            FROM customcdr c
+            JOIN rs_agentmobile a ON c.agent = a.agentmobile  
+            WHERE c.calltype = 'Incomming Call'
+              AND c.agent_disposition = 'NO ANSWER';
         `, [manager_id]);
 
         const formattedResults = results.map(item => {

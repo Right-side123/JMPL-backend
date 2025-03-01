@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 const getCdrByAgent = async (req, res) => {
     const agent = req.params.agent;
-    const { startDate, endDate, startTime, endTime, calltype, agentDisposition } = req.query;
+    const { startDate, endDate, startTime, endTime, calltype, status } = req.query;
 
     const queryStartTime = startTime || '00:00:00';
     const queryEndTime = endTime || '23:59:59';
@@ -10,6 +10,40 @@ const getCdrByAgent = async (req, res) => {
 
     const queryStartDateTime = `${startDate} ${queryStartTime}`;
     const queryEndDateTime = `${endDate} ${queryEndTime}`;
+
+    let callTypeCondition = "";
+
+    if (calltype === 'outbound') {
+        callTypeCondition = "(c.calltype = 'Outbound')";
+    } else if (calltype === 'incommingCall') {
+        callTypeCondition = "(c.calltype = 'Incomming Call')";
+    } else if (calltype === 'all') {
+        callTypeCondition = `((c.calltype = 'Outbound')
+        OR (c.calltype = 'Incomming Call'))`;
+    } else {
+        return res.status(400).json({ error: 'Invalid calltype provided' });
+    }
+
+    let statusCondition = "";
+
+    if (status === 'connected') {
+        statusCondition = "(c.agent_disposition = 'ANSWERED' AND c.customer_disposition = 'ANSWERED')";
+    } else if (status === 'notConnected') {
+        statusCondition = `((c.agent_disposition = 'ANSWERED' AND c.customer_disposition = 'NO ANSWER') 
+            OR 
+            (c.agent_disposition = 'NO ANSWER' AND c.customer_disposition IS NULL))`;
+    } else if (status === 'all') {
+
+        statusCondition = `(
+            (c.agent_disposition = 'ANSWERED' AND c.customer_disposition = 'ANSWERED') 
+            OR 
+            ((c.agent_disposition = 'ANSWERED' AND c.customer_disposition = 'NO ANSWER') 
+            OR 
+            (c.agent_disposition = 'NO ANSWER' AND c.customer_disposition IS NULL))
+        )`;
+    } else {
+        return res.status(400).json({ error: 'Invalid status provided' });
+    }
 
     try {
         let query = `
@@ -38,7 +72,10 @@ const getCdrByAgent = async (req, res) => {
             
             WHERE 
                 c.agent = ? AND 
-                c.call_datetime BETWEEN ? AND ?`;
+                c.call_datetime BETWEEN ? AND ?
+                AND ${statusCondition}
+                AND ${callTypeCondition};
+                `;
 
         const queryParams = [agent, queryStartDateTime, queryEndDateTime];
 
@@ -49,16 +86,16 @@ const getCdrByAgent = async (req, res) => {
         // }
 
 
-        if (calltype && calltype !== 'all') {
-            query += ` AND c.calltype = ?`;
-            queryParams.push(calltype);
-        }
+        // if (calltype && calltype !== 'all') {
+        //     query += ` AND c.calltype = ?`;
+        //     queryParams.push(calltype);
+        // }
 
 
-        if (agentDisposition && agentDisposition !== 'all') {
-            query += ` AND c.agent_disposition = ?`;
-            queryParams.push(agentDisposition);
-        }
+        // if (agentDisposition && agentDisposition !== 'all') {
+        //     query += ` AND c.agent_disposition = ?`;
+        //     queryParams.push(agentDisposition);
+        // }
 
         const cdrData = await db.query(query, queryParams);
 

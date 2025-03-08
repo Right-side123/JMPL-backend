@@ -20,7 +20,7 @@ const { getCdrByAgent } = require('../controllers/singleAgent')
 
 const {
     getCustomcdrLength,
-    getInboundLength,
+    getInboundLength, 
     getOutboundLength,
     getconnectedLength,
     getnotconnectedLength,
@@ -30,38 +30,38 @@ const {
 
 router.post('/login', login);
 
-router.get('/agents', AgentsController);
+router.get('/agents/:manager_id', AgentsController);
 
-router.get('/customcdr', getCdrData);
+router.get('/customcdr/:manager_id', getCdrData);
 
-router.get('/inbound', getInboundCdrData);
+router.get('/inbound/:manager_id', getInboundCdrData);
 
-router.get('/outbound', getOutboundCdrData);
+router.get('/outbound/:manager_id', getOutboundCdrData);
 
-router.get('/connectedcalls', getConnectedCall);
+router.get('/connectedcalls/:manager_id', getConnectedCall);
 
-router.get('/notconnectedcalls', getNotconnectedCall);
+router.get('/notconnectedcalls/:manager_id', getNotconnectedCall);
 
-router.get('/missedoutboundcalls', getMissedOutboundCall);
+router.get('/missedoutboundcalls/:manager_id', getMissedOutboundCall);
 
-router.get('/missedcalls', getMissedCall);
+router.get('/missedcalls/:manager_id', getMissedCall);
 
 router.get('/cdr/:agent', getCdrByAgent);
 
 
 
-router.get('/totalcdr', getCustomcdrLength);
+router.get('/totalcdr/:manager_id', getCustomcdrLength);
 
-router.get('/totalinbound', getInboundLength);
+router.get('/totalinbound/:manager_id', getInboundLength);
 
-router.get('/totaloutbound', getOutboundLength);
+router.get('/totaloutbound/:manager_id', getOutboundLength);
 
-router.get('/totalconnected', getconnectedLength);
+router.get('/totalconnected/:manager_id', getconnectedLength);
 
-router.get('/totalnotconnected', getnotconnectedLength);
+router.get('/totalnotconnected/:manager_id', getnotconnectedLength);
 
-router.get('/totalmissedoutbound', getMissedoutboundLength);
+router.get('/totalmissedoutbound/:manager_id', getMissedoutboundLength);
 
-router.get('/totalmissed', getMissedLength);
+router.get('/totalmissed/:manager_id', getMissedLength);
 
 module.exports = router;

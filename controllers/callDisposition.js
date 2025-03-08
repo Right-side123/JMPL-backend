@@ -1,6 +1,8 @@
 const { query } = require('../config/db');
 
 const getConnectedCall = async (req, res) => {
+
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime } = req.query;
 
     if (!startDate || !endDate) {
@@ -38,14 +40,15 @@ const getConnectedCall = async (req, res) => {
             FROM customcdr c
 
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+            AND c.call_datetime BETWEEN ? AND ?
               AND c.agent_disposition = 'ANSWERED'
               AND c.customer_disposition = 'ANSWERED';
         `;
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);
@@ -54,6 +57,7 @@ const getConnectedCall = async (req, res) => {
 };
 
 const getNotconnectedCall = async (req, res) => {
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime } = req.query;
 
     if (!startDate || !endDate) {
@@ -91,14 +95,15 @@ const getNotconnectedCall = async (req, res) => {
             FROM customcdr c
 
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+              AND c.call_datetime BETWEEN ? AND ?
               AND c.agent_disposition = 'ANSWERED'
               AND c.customer_disposition = 'NO ANSWER';
         `;
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);
@@ -168,6 +173,7 @@ const getNotconnectedCall = async (req, res) => {
 
 
 const getMissedOutboundCall = async (req, res) => {
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime, filter } = req.query;
 
 
@@ -225,7 +231,8 @@ const getMissedOutboundCall = async (req, res) => {
                 c.customer_disposition
             FROM customcdr c
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+            AND c.call_datetime BETWEEN ? AND ?
             AND c.calltype = 'Outbound'
             AND ${filterCondition};
         `;
@@ -233,10 +240,10 @@ const getMissedOutboundCall = async (req, res) => {
         // console.log(`Executing SQL Query: ${querySql}`);
 
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching missed outbound CDR data:', err);
@@ -248,6 +255,7 @@ const getMissedOutboundCall = async (req, res) => {
 
 
 const getMissedCall = async (req, res) => {
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime } = req.query;
 
     if (!startDate || !endDate) {
@@ -285,14 +293,15 @@ const getMissedCall = async (req, res) => {
             FROM customcdr c
 
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+              AND c.call_datetime BETWEEN ? AND ?
               AND c.calltype = 'Incomming Call'
               AND c.agent_disposition = 'NO ANSWER';
         `;
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);

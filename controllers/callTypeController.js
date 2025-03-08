@@ -1,6 +1,7 @@
 const { query } = require('../config/db');
 
 const getInboundCdrData = async (req, res) => {
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime } = req.query;
 
     if (!startDate || !endDate) {
@@ -39,13 +40,14 @@ const getInboundCdrData = async (req, res) => {
 
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
            
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+            AND c.call_datetime BETWEEN ? AND ?
               AND c.calltype = 'Incomming Call';
         `;
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);
@@ -55,6 +57,7 @@ const getInboundCdrData = async (req, res) => {
 
 
 const getOutboundCdrData = async (req, res) => {
+    const { manager_id } = req.params;
     const { startDate, endDate, startTime, endTime } = req.query;
 
     if (!startDate || !endDate) {
@@ -93,13 +96,14 @@ const getOutboundCdrData = async (req, res) => {
 
             JOIN rs_agentmobile a ON c.agent = a.agentmobile
            
-            WHERE c.call_datetime BETWEEN ? AND ?
+            WHERE a.manager_id = ?
+            AND c.call_datetime BETWEEN ? AND ?
               AND c.calltype = 'Outbound';
         `;
 
-        const cdrData = await query(querySql, [queryStartDateTime, queryEndDateTime]);
+        const cdrData = await query(querySql, [manager_id, queryStartDateTime, queryEndDateTime]);
 
-        return res.json({ cdr_data: cdrData });
+        return res.json({ manager_id, cdr_data: cdrData });
 
     } catch (err) {
         console.error('Error fetching inbound CDR data:', err);

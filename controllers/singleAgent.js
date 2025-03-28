@@ -100,7 +100,7 @@ const getCdrByAgent = async (req, res) => {
         const cdrData = await db.query(query, queryParams);
 
         if (cdrData.length === 0) {
-            return res.status(404).json({ message: "No CDR found for this agent." });
+            return res.json({ cdrData: [] });
         }
 
         res.status(200).json({ cdr_data: cdrData });
